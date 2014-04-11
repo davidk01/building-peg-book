@@ -38,7 +38,7 @@ parse([/\d/, /\d/, /[a-z]/], '12bc')
 parse([/\d/, /\d/, /[a-z]/], '12A')
 ```
 
-Do a few more so you get a good feel for what exactly is going on and that we haven't made any off by one errors. This is still not good enough though. We have simplified things too much. When we start chaining parsers together we will need to keep track of where we are in the input stream. Right now we have confounded those two indices into one variable. So we need to abstract things a little bit. That brings us to the third variation.
+Do a few more so you get a good feel for what exactly is going on and verify that there aren't any off-by-one errors. We are still missing something though because we have simplified things a little too much. When we start chaining parsers together we will need to keep track of where we are in the input stream. Right now we have confounded those two indices into one variable. So we need to abstract things a little bit.
 
 # Variation 3
 ```ruby
@@ -76,11 +76,11 @@ def parse(matcher, indexable)
 end
 ```
 
-Now we are starting to get somewhere. We have abstracted the input stream into it's own class. This allows us to keep a very minimal amount of state which is basically just a pointer into the indexable object that tells us where we are. All parsing now happens with the help of that pointer. Some examples to try out before we bring it all together in the fourth variation by abstracting the parser into its own class as well.
+Now we are starting to get somewhere. Abstracting the input stream into a class allows us to keep a very minimal amount of state which is basically just a pointer into the indexable object that tells us where we are. All parsing now happens with the help of that pointer. Some examples to try out before we bring it all together in the fourth variation by abstracting the parser into its own class as well.
 ```ruby
 parse([/[a-z]/], Indexable.new('abc'))
 parse([/[a-z]/, /[a-z]/, /\d/], Indexable.new('abc'))
 parse([/[a-z]/, /[a-z]/, /[a-z]/], Indexable.new('abc'))
 parse('abc', Indexable.new('abc'))
 ```
-Make sure you understand why the indexing and slicing is the way it is. It in fact took me several tries and several examples to get right. The fourth variation gets its own section because it is the foundation on top of which we are going to build everything else and it deserves a section all its own.
+Make sure you understand why the indexing and slicing is the way it is. It took me several tries and several examples in `irb` before I got it right. Once you are comfortable with the examples and the code in this section re-read the code one more time and then proceed to the fourth variation.
