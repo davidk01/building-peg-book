@@ -51,7 +51,7 @@ class Indexable
   end
 
   def advance!
-    old_element = @indexable[@current_position]
+    return nil unless old_element = @indexable[@current_position]
     @current_element = @indexable[@current_position += 1]
     old_element
   end
