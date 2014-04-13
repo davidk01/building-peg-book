@@ -40,10 +40,6 @@ There is no reason the `parse` method should be standing by itself. So let's abs
 ```ruby
 class BasicParser
 
-  def self.[](*matchers)
-    new(matchers)
-  end
-
   def initialize(matchers)
     @matcher = matchers
   end
