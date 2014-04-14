@@ -1,12 +1,12 @@
 class BasicParser
 
   def initialize(matchers)
-    @matcher = matchers
+    @matchers = matchers
   end
 
   def parse(indexable)
     index, start = -1, indexable.current_position
-    while (m = @matcher[index += 1])
+    while (m = @matchers[index += 1])
       next if m === indexable.advance!
       return [:fail, indexable[start...indexable.current_position - 1]]
     end
