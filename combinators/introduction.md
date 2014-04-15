@@ -1,5 +1,5 @@
 # Combinators (definition and examples)
-There are many definitions of combinators but the one I like is functions that build programs from other programs. That's pretty high level so lets start with some simple examples:
+There are many definitions of combinators but the one I like is functions that build programs from other programs. That's pretty high level so lets start with a simple example:
 ```ruby
 class Callable < Struct.new(:callable)
 
@@ -131,7 +131,7 @@ class SequencedParser < Parser
     i, accumulator = -1, []
     while (parser = @parsers[i += 1])
       result = parser.parse(indexable)
-      if result[0] == :fail
+      if result[0] === :fail
         return result
       else
         accumulator += result
@@ -152,4 +152,4 @@ parser_b.parse(Indexable.new('abc'))
 ```
 
 # Next Up
-Study the examples in this section and make sure you understand the essence of what we are trying to do. I like to think of combinators as abstractions that take computational lego blocks and snaps them together to build ever more complicated structures except the way it all fits together still makes it easy for us to reason about the overall structure because we can always reduce everything inductively to the lowest level building blocks.
+Study the examples in this section and make sure you understand the essence of what we are trying to do. I like to think of combinators as abstractions that take computational lego blocks and snaps them together to build ever more complicated structures. But the way we put everything together doesn't actual make things more complicated than necessary. It is all done in a way to make it easy for us to reason about the overall structure because we can always reduce everything inductively to the atomic building blocks which are simple enough to unerstand without much trouble.
