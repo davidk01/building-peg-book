@@ -1,59 +1,13 @@
 # Variation 4
 So we have worked our way to a very minimal core for matching with sequences of elements that support `===` and `[]`. Now we just need to abstract the `parse` method into a parser object so that we can start combining different kinds of parser objects with parser combinator methods. Recall what we have from the previous section with the third variation:
 ```ruby
-class Indexable
-
-  attr_reader :current_position
-
-  def initialize(input)
-    @indexable, @current_position, @current_element = input, 0, input[0]
-  end
-
-  def advance!
-    return nil unless old_element = @indexable[@current_position]
-    @current_element = @indexable[@current_position += 1]
-    old_element
-  end
-
-  def jump!(new_position)
-    @current_position = new_position
-  end
-
-  def [](slice)
-    @indexable[slice]
-  end
-
-end
-
-def parse(matcher, indexable)
-  index, start = -1, indexable.current_position
-  while (m = matcher[index += 1])
-    next if m === indexable.advance!
-    return [:fail, indexable[start...indexable.current_position - 1]]
-  end
-  [indexable[start...indexable.current_position]]
-end
+REF : Variation 3
 ```
 
 There is no reason the `parse` method should be standing by itself. So let's abstract it into a class.
 
 ```ruby
-class BasicParser
-
-  def initialize(matchers)
-    @matchers = matchers
-  end
-
-  def parse(indexable)
-    index, start = -1, indexable.current_position
-    while (m = @matchers[index += 1])
-      next if m === indexable.advance!
-      return [:fail, indexable[start...indexable.current_position - 1]]
-    end
-    [indexable[start...indexable.current_position]]
-  end
-
-end
+REF : Variation 4
 ```
 
 The examples from the previous section now become

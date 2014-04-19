@@ -3,31 +3,14 @@ The foundations of any parsing technology are iteration and a matching relation.
 
 # Variation 1
 ```ruby
-def parse(matcher, stream)
-  index = 0
-  for m in matcher
-    if m === stream[index]
-      index += 1
-    else
-      return [:fail, stream[0...index]]
-    end
-  end
-  [stream[0..index]]
-end
+REF : Variation 1
 ```
 
 What is the intent of the above code? Basically we are verifying that all the pieces of `matcher` line up in the `stream` and then we return the piece of the stream that matched. If every component of the `matcher` lines up then the parsing attempt is successful and if not then we tag the result with `:fail` because we want to indicate some kind of failure. We could have also thrown an exception or returned `false`. We didn't do that because exceptions are going to kill performance and we didn't simply return `false` because when debugging we might want to know how far we got in the stream of things we were trying to match before failing. You should notice one important thing in the above code. We are cheating by using for everything should only depend on indexing with `[]`. That brings us to the second variation.
 
 # Variation 2
 ```ruby
-def parse(matcher, stream)
-  index = -1
-  while (m = matcher[index += 1])
-    next if m === stream[index]
-    return [:fail, stream[0...index]]
-  end
-  [stream[0...index]]
-end
+REF : Variation 2
 ```
 
 Now we only depend on indexing with `[]` and comparing things with `===`. Open up `irb` and try a few examples and see what happens. Here are some test cases to get you started:
@@ -42,38 +25,7 @@ Do a few more so you get a good feel for what exactly is going on and verify tha
 
 # Variation 3
 ```ruby
-class Indexable
-
-  attr_reader :current_position
-
-  def initialize(input)
-    @indexable, @current_position, @current_element = input, 0, input[0]
-  end
-
-  def advance!
-    return nil unless old_element = @indexable[@current_position]
-    @current_element = @indexable[@current_position += 1]
-    old_element
-  end
-
-  def jump!(new_position)
-    @current_position = new_position
-  end
-
-  def [](slice)
-    @indexable[slice]
-  end
-
-end
-
-def parse(matcher, indexable)
-  index, start = -1, indexable.current_position
-  while (m = matcher[index += 1])
-    next if m === indexable.advance!
-    return [:fail, indexable[start...indexable.current_position - 1]]
-  end
-  [indexable[start...indexable.current_position]]
-end
+REF : Variation 3
 ```
 
 Now we are starting to get somewhere. Abstracting the input stream into a class allows us to keep a very minimal amount of state which is basically just a pointer into the indexable object that tells us where we are. All parsing now happens with the help of that pointer. Some examples to try out before we bring it all together in the fourth variation by abstracting the parser into its own class as well.

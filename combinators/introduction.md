@@ -1,17 +1,7 @@
 # Combinators (definition and examples)
 There are many definitions of combinators but the one I like is functions that build programs from other programs. That's pretty high level so lets start with a simple example:
 ```ruby
-class Callable < Struct.new(:callable)
-
-  def *(other_callable)
-    Callable.new(lambda {|*args| [self.call(*args), other_callable.call(*args)]})
-  end
-
-  def call(*args)
-    callable.call(*args)
-  end
-
-end
+REF : Callable sample
 ```
 
 In the above class definition `*` is a combinator because it takes one program fragment, a callable instance, and combines it with another callable instance to create a third callable instance.
@@ -25,122 +15,22 @@ So the general idea is quite simple. Start with simple building blocks and compo
 
 Recall from last time the two classes that we had
 ```ruby
-class Indexable
+REF : Indexable class
 
-  attr_reader :current_position
-
-  def initialize(input)
-    @indexable, @current_position, @current_element = input, 0, input[0]
-  end
-
-  def advance!
-    return nil unless old_element = @indexable[@current_position]
-    @current_element = @indexable[@current_position += 1]
-    old_element
-  end
-
-  def jump!(new_position)
-    @current_position = new_position
-  end
-
-  def [](slice)
-    @indexable[slice]
-  end
-
-end
-
-class BasicParser
-
-  def initialize(matchers)
-    @matchers = matchers
-  end
-
-  def parse(indexable)
-    index, start = -1, indexable.current_position
-    while (m = @matchers[index += 1])
-      next if m === indexable.advance!
-      return [:fail, indexable[start...indexable.current_position - 1]]
-    end
-    [indexable[start...indexable.current_position]]
-  end
-
-end
+REF : Variation 4
 ```
 
 Our focus is going to be `BasicParser` but to go further we need a place to put all our combinators. The simplest way to do that is to create a `Parser` superclass that all other parsers will inherit from.
 ```ruby
-class Parser
-
-  ## Combinators methods go here.
-
-end
-
-class BasicParser < Parser
-
-  def initialize(matchers)
-    @matchers = matchers
-  end
-
-  def parse(indexable)
-    index, start = -1, indexable.current_position
-    while (m = @matchers[index += 1])
-      next if m === indexable.advance!
-      return [:fail, indexable[start...indexable.current_position - 1]]
-    end
-    [indexable[start...indexable.current_position]]
-  end
-
-end
+REF : Initial basic parser
 ```
 
 # Splicing Two Parsers
 So what is the simplest possible thing we can do with two `BasicParser` instances? Like the example in the beginning we can combine them in some way and the simplest possible way of combining two parsers is to run them one after the other. So if we have two parsers `a` and `b` then we can put them together in sequence and get a third parser `a > b`. `>` is our first combinator.
 ```ruby
-class Parser
+REF : Initial basic parser
 
-  def >(other)
-    SequencedParser.new(self, other)
-  end
-
-end
-
-class BasicParser < Parser
-
-  def initialize(matchers)
-    @matchers = matchers
-  end
-
-  def parse(indexable)
-    index, start = -1, indexable.current_position
-    while (m = @matchers[index += 1])
-      next if m === indexable.advance!
-      return [:fail, indexable[start...indexable.current_position - 1]]
-    end
-    [indexable[start...indexable.current_position]]
-  end
-
-end
-
-class SequencedParser < Parser
-
-  def initialize(first, second)
-    @parsers = [first, second]
-  end
-
-  def parse(indexable)
-    i, accumulator = -1, []
-    while (parser = @parsers[i += 1])
-      result = parser.parse(indexable)
-      if result[0] === :fail
-        return result
-      else
-        accumulator += result
-      end
-    end
-    return accumulator
-  end
-
-end
+REF : Sequenced Parser
 ```
 
 Notice what we are doing. We are creating a new instance that inherits from `Parser` and implements `parse`. The `parse` method for `SequencedParser` does exactly what its name suggests. It runs the two parsers in sequence and succeeds if and only if both parsers succeed and at the first sign of failure it bails and returns the failure results. You might be wondering how is sequencing two parsers different from just combining their matchers. That's a good guestion and you should run the following examples in `irb` to make sure you understand the difference:
